@@ -1,0 +1,13 @@
+        body {
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        #drawingCanvas {
+            border: 1px solid black;
+            cursor: crosshair;
+        }
+
+        #controls {
+            margin-top: 10px;
+        }

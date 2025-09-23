@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Draw Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+
+</head>
+<body>
+    <h1>Draw with Cursor</h1>
+    
+    <div id="controls">
+        <label for="brushSize">Brush Size:</label>
+        <select id="brushSize">
+            <option value="2">Small</option>
+            <option value="5" selected>Medium</option>
+            <option value="10">Large</option>
+            <option value="20">Extra Large</option>
+        </select>
+        <button onclick="clearCanvas()"id="clearCanvas">Clear Canvas</button>
+        <p>Set the size of the canvas</p>
+        <label for="canvasWidth">Width (Between 1 and 20):</label>
+        <input type="number" id="canvasWidth" value="6" min="1" max="20">
+        <label for="canvasHeight">Height (Between 1 and 20):</label>
+        <input type="number" id="canvasHeight" value="4" min="1" max="20">
+        <button onclick="resizeCanvas()"id="resizeCanvas">Resize Canvas</button>
+    </div>
+
+    <canvas id="drawingCanvas" width=canvasWidth height=canvasHeight></canvas>
+
+    <button id="processDrawing" onclick="processDrawing()"> Process Drawing</button>
+
+
+    <script>
+        const canvas = document.getElementById("drawingCanvas");
+        const ctx = canvas.getContext("2d");
+        const brushSizeSelect = document.getElementById("brushSize");
+
+        let drawing = false;
+        let brushSize = parseInt(brushSizeSelect.value);
+
+
+        canvas.addEventListener("mousemove", draw);
+
+
+        brushSizeSelect.addEventListener("change", () => {
+            brushSize = parseInt(brushSizeSelect.value);
+        });
+
+        let lastX = null;
+        let lastY = null;
+
+        function draw(event) {
+            if (!drawing) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = brushSize * 2;
+            ctx.lineCap = "round";
+
+            if (lastX !== null && lastY !== null) {
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+            lastX = x;
+            lastY = y;
+        }
+
+        canvas.addEventListener("mousedown", (e) => {
+            drawing = true;
+            const rect = canvas.getBoundingClientRect();
+            lastX = e.clientX - rect.left;
+            lastY = e.clientY - rect.top;
+        });
+
+        canvas.addEventListener("mouseup", () => {
+            drawing = false;
+            lastX = null;
+            lastY = null;
+        });
+
+        canvas.addEventListener("mouseout", () => {
+            drawing = false;
+            lastX = null;
+            lastY = null;
+        });
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function resizeCanvas() {
+            const width = parseInt(document.getElementById("canvasWidth").value * 100);
+            const height = parseInt(document.getElementById("canvasHeight").value * 100);
+
+            if (width < 100 || width > 2000 || height < 100 || height > 2000) {
+                alert("Width and Height must be between 100 and 2000.");
+                return;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            clearCanvas();
+        }
+
+        function processDrawing() {
+            const dataURL = canvas.toDataURL("image/png");
+            const width = canvas.width;
+            const height = canvas.height;
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/process_drawing", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    alert("Drawing processed successfully!");
+                }
+            };
+            xhr.send(JSON.stringify({ 
+                image: dataURL, 
+                width: width, 
+                height: height
+            }));
+        }
+    </script>
+</body>
+</html>
