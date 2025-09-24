@@ -7,7 +7,7 @@ Follow the steps below to set up a virtual environment, install dependencies, an
 
 ## 1. Clone the Repository
 ```bash
-git clone git@github.com:lyjosh/HRI.git
+git clone https://github.com/lyjosh/HRI.git
 cd HRI
 
 MacOS
