@@ -33,6 +33,10 @@
     <script>
         const canvas = document.getElementById("drawingCanvas");
         const ctx = canvas.getContext("2d");
+        
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         const brushSizeSelect = document.getElementById("brushSize");
 
         let drawing = false;
@@ -118,6 +122,13 @@
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     alert("Drawing processed successfully!");
+                    const response = JSON.parse(xhr.responseText);
+                    const tile_gray_averages = response.tile_gray_averages;
+                    console.log("Tile Gray Averages:", tile_gray_averages);
+                    const rows = response.grid.rows;
+                    const cols = response.grid.cols;
+                    const heatMapCanvas = grayHeatMap(tile_gray_averages, rows, cols);
+                    document.body.appendChild(heatMapCanvas);
                 }
             };
             xhr.send(JSON.stringify({ 
@@ -125,6 +136,23 @@
                 width: width, 
                 height: height
             }));
+        }
+
+        function grayHeatMap(tile_gray_averages, rows, cols) { 
+            const heatMapCanvas = document.createElement('canvas');
+            heatMapCanvas.width = cols * 100;
+            heatMapCanvas.height = rows * 100;
+            const heatMapCtx = heatMapCanvas.getContext('2d');
+
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const grayValue = tile_gray_averages[`${row},${col}`];
+                    console.log(`Tile (${row}, ${col}): Gray Value = ${grayValue}`);
+                    heatMapCtx.fillStyle = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
+                    heatMapCtx.fillRect(col * 100, row * 100, 100, 100);
+                }
+            }
+            return heatMapCanvas;
         }
     </script>
 </body>

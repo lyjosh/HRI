@@ -120,12 +120,6 @@ def process_drawing():
                 # Continue processing other tiles instead of failing completely
                 tile_gray_averages[f"{row},{col}"] = 128  # Default middle gray
 
-        # Compute grayscale average for full image
-        try:
-            full_gray = average_grayscale_of_image(full_image_path)
-        except Exception as e:
-            logger.error(f"Failed to compute full image grayscale: {e}")
-            full_gray = 128  # Default fallback
 
         logger.info(f"Successfully processed image {curr_image_num} with {len(tile_paths)} tiles")
 
@@ -137,7 +131,6 @@ def process_drawing():
             'image_size': {'width': img_w, 'height': img_h},
             'grid': {'rows': rows, 'cols': cols},
             'tile_gray_averages': tile_gray_averages,
-            'full_image_gray_average': full_gray,
             'full_image_path': full_image_path
         }), 200
 
