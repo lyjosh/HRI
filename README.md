@@ -24,3 +24,9 @@ pip install -r requirements.txt
 
 To Run:
 flask run
+
+After creating your venv, to reactivate in another terminal, use:
+source venv/bin/activate
+
+to exit the virtual environment use: 
+deactivate
