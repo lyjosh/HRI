@@ -10,15 +10,21 @@ Follow the steps below to set up a virtual environment, install dependencies, an
 git clone https://github.com/lyjosh/HRI.git
 cd HRI
 
-MacOS
-python3 -m venv venv
-source venv/bin/activate
+
 
 Powershell
 python -m venv venv
 venv\Scripts\Activate
 
-Install Dependencies
+MacOS
+
+brew install python@3.11
+/opt/homebrew/bin/python3.11 -m venv venv
+source venv/bin/activate
+python --version   # should say 3.11.x
+pip install --upgrade pip setuptools wheel
+
+Install Dependencies:
 pip install --upgrade pip
 pip install -r requirements.txt
 
