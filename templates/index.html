@@ -98,6 +98,8 @@
         function clearCanvas() {
             ctx.fillStyle = "#fff";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('grayHeatmap')?.remove();
+            
         }
 
         function resizeCanvas() {
@@ -130,6 +132,7 @@
                     console.log("Tile Gray Averages:", tile_gray_averages);
                     const rows = response.grid.rows;
                     const cols = response.grid.cols;
+                    document.getElementById('grayHeatmap')?.remove();
                     const heatMapCanvas = grayHeatMap(tile_gray_averages, rows, cols);
                     document.body.appendChild(heatMapCanvas);
                 }
@@ -143,6 +146,7 @@
 
         function grayHeatMap(tile_gray_averages, rows, cols) { 
             const heatMapCanvas = document.createElement('canvas');
+            heatMapCanvas.id = 'grayHeatmap';
             heatMapCanvas.width = cols * 100;
             heatMapCanvas.height = rows * 100;
             const heatMapCtx = heatMapCanvas.getContext('2d');
