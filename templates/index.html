@@ -157,6 +157,10 @@
                     console.log(`Tile (${row}, ${col}): Gray Value = ${grayValue}`);
                     heatMapCtx.fillStyle = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
                     heatMapCtx.fillRect(col * 100, row * 100, 100, 100);
+
+                    heatMapCtx.strokeStyle = "black";
+                    heatMapCtx.lineWidth = 1;  // thin border
+                    heatMapCtx.strokeRect(col * 100, row * 100, 100, 100);
                 }
             }
             return heatMapCanvas;
