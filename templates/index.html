@@ -27,6 +27,14 @@
 
     <canvas id="drawingCanvas"></canvas>
 
+    <div id="controls">
+        <input type="file" id="imageUpload" accept="image/*">
+        <button type="button" onclick="loadImageToCanvas()">Load Image → Canvas</button>
+    </div>
+
+
+
+
     <button id="processDrawing" onclick="processDrawing()"> Process Drawing</button>
 
 
@@ -94,6 +102,8 @@
             lastX = null;
             lastY = null;
         });
+
+        
 
         function clearCanvas() {
             ctx.fillStyle = "#fff";
@@ -165,6 +175,45 @@
             }
             return heatMapCanvas;
         }
+
+
+
+        async function loadImageToCanvas() {
+            const input = document.getElementById('imageUpload');
+            const file = input.files?.[0];
+            if (!file) {
+            alert('Choose an image first.');
+            return;
+            }
+            if (!file.type.startsWith('image/')) {
+            alert('Please select an image file.');
+            return;
+            }
+
+            // Read the file into a data URL
+            const reader = new FileReader();
+            reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+                // Optional: resize canvas to fit image *or* fit into your grid size.
+                // Here we’ll resize canvas to the image’s native size:
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                // Clear + draw the image to the canvas
+                ctx.fillStyle = "#fff";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Now reuse your existing pipeline
+                processDrawing();
+            };
+            img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+
     </script>
 </body>
 </html>

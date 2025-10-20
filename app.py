@@ -6,6 +6,8 @@ import io as pyio
 import os
 import re
 import logging
+from werkzeug.utils import secure_filename
+
 
 app = Flask(__name__)
 
@@ -16,6 +18,8 @@ logger = logging.getLogger(__name__)
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
 
 @app.route('/process_drawing', methods=['POST'])
 def process_drawing():
