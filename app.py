@@ -124,6 +124,24 @@ def process_drawing():
                 # Continue processing other tiles instead of failing completely
                 tile_gray_averages[f"{row},{col}"] = 128  # Default middle gray
 
+        # Data Normalization
+        max_gray = max(tile_gray_averages.values())
+        if max_gray == 0:
+            max_gray = 1
+
+        range3 = max_gray / 3    # split thresholds into 3 parts
+
+        categorized_tiles = {}  # 0, 1, or 2 for each tile
+
+        for key, gray in tile_gray_averages.items():
+            if gray <= range3:
+                category = 2
+            elif gray <= 2 * range3:
+                category = 1
+            else:
+                category = 0
+
+            categorized_tiles[key] = category
 
         logger.info(f"Successfully processed image {curr_image_num} with {len(tile_paths)} tiles")
 
@@ -135,6 +153,8 @@ def process_drawing():
             'image_size': {'width': img_w, 'height': img_h},
             'grid': {'rows': rows, 'cols': cols},
             'tile_gray_averages': tile_gray_averages,
+            'categorized_tiles': categorized_tiles,
+            'max_gray': max_gray,   
             'full_image_path': full_image_path
         }), 200
 

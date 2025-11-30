@@ -108,8 +108,8 @@
         function clearCanvas() {
             ctx.fillStyle = "#fff";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            document.getElementById('grayHeatmap')?.remove();
-            
+            //document.getElementById('grayHeatmap')?.remove();
+            document.getElementById('thresholdHeatMap')?.remove();
         }
 
         function resizeCanvas() {
@@ -140,11 +140,17 @@
                     const response = JSON.parse(xhr.responseText);
                     const tile_gray_averages = response.tile_gray_averages;
                     console.log("Tile Gray Averages:", tile_gray_averages);
+                    const thresholds = response.categorized_tiles;
+                    console.log("Tile thresholds:", thresholds);
                     const rows = response.grid.rows;
                     const cols = response.grid.cols;
-                    document.getElementById('grayHeatmap')?.remove();
-                    const heatMapCanvas = grayHeatMap(tile_gray_averages, rows, cols);
-                    document.body.appendChild(heatMapCanvas);
+                    //document.getElementById('grayHeatmap')?.remove();
+                    document.getElementById('thresholdHeatMap')?.remove();
+                    
+                    //const heatMapCanvas = grayHeatMap(tile_gray_averages, rows, cols);
+                    //document.body.appendChild(heatMapCanvas);
+                    const thresholdHeatMapCanvas = thresholdHeatMap(thresholds, rows, cols);
+                    document.body.appendChild(thresholdHeatMapCanvas);
                 }
             };
             xhr.send(JSON.stringify({ 
@@ -154,29 +160,64 @@
             }));
         }
 
-        function grayHeatMap(tile_gray_averages, rows, cols) { 
-            const heatMapCanvas = document.createElement('canvas');
-            heatMapCanvas.id = 'grayHeatmap';
-            heatMapCanvas.width = cols * 100;
-            heatMapCanvas.height = rows * 100;
-            const heatMapCtx = heatMapCanvas.getContext('2d');
+        // function grayHeatMap(tile_gray_averages, rows, cols) { 
+        //     const heatMapCanvas = document.createElement('canvas');
+        //     heatMapCanvas.id = 'grayHeatmap';
+        //     heatMapCanvas.width = cols * 100;
+        //     heatMapCanvas.height = rows * 100;
+        //     const heatMapCtx = heatMapCanvas.getContext('2d');
+
+        //     for (let row = 0; row < rows; row++) {
+        //         for (let col = 0; col < cols; col++) {
+        //             const grayValue = tile_gray_averages[`${row},${col}`];
+        //             console.log(`Tile (${row}, ${col}): Gray Value = ${grayValue}`);
+        //             heatMapCtx.fillStyle = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
+        //             heatMapCtx.fillRect(col * 100, row * 100, 100, 100);
+
+        //             heatMapCtx.strokeStyle = "black";
+        //             heatMapCtx.lineWidth = 1;  // thin border
+        //             heatMapCtx.strokeRect(col * 100, row * 100, 100, 100);
+        //         }
+        //     }
+        //     return heatMapCanvas;
+        // }
+
+        function thresholdHeatMap(categories, rows, cols) {
+            const canvas = document.createElement('canvas');
+            canvas.id = 'thresholdHeatMap'
+            canvas.width = cols * 100;
+            canvas.height = rows * 100;
+            const ctx = canvas.getContext('2d');
+
+            const colors = {
+                0: "rgb(255,255,255)",  // white
+                1: "rgb(150,150,150)",  // medium gray
+                2: "rgb(0,0,0)"         // black
+            };
+            ctx.font = "40px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
 
             for (let row = 0; row < rows; row++) {
                 for (let col = 0; col < cols; col++) {
-                    const grayValue = tile_gray_averages[`${row},${col}`];
-                    console.log(`Tile (${row}, ${col}): Gray Value = ${grayValue}`);
-                    heatMapCtx.fillStyle = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
-                    heatMapCtx.fillRect(col * 100, row * 100, 100, 100);
+                    const cat = categories[`${row},${col}`];
+                    ctx.fillStyle = colors[cat];
+                    ctx.fillRect(col * 100, row * 100, 100, 100);
 
-                    heatMapCtx.strokeStyle = "black";
-                    heatMapCtx.lineWidth = 1;  // thin border
-                    heatMapCtx.strokeRect(col * 100, row * 100, 100, 100);
+                    ctx.strokeStyle = "black";
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(col * 100, row * 100, 100, 100);
+
+                    ctx.fillStyle = (cat === 2 ? "white" : "black");
+                    ctx.fillText(
+                        cat,
+                        col * 100 + 50,  // center X
+                        row * 100 + 50   // center Y
+                    );
                 }
             }
-            return heatMapCanvas;
+            return canvas;
         }
-
-
 
         async function loadImageToCanvas() {
             const input = document.getElementById('imageUpload');
