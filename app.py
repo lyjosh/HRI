@@ -134,22 +134,32 @@ def process_drawing():
                 tile_gray_averages[f"{row},{col}"] = 128  # Default middle gray
 
         # Data Normalization
-        max_gray = max(tile_gray_averages.values())
-        if max_gray == 0:
-            max_gray = 1
-
-        range3 = max_gray / 3    # split thresholds into 3 parts
-
         categorized_tiles = {}  # 0, 1, or 2 for each tile
-
-        for key, gray in tile_gray_averages.items():
-            if gray <= range3:
-                category = 2
-            elif gray <= 2 * range3:
-                category = 1
+        #special case for 1x1 tile
+        if len(tile_gray_averages) == 1:
+            max_gray = 255  # fix: define max_gray for the return statement
+            key, gray = next(iter(tile_gray_averages.items()))
+            if gray < 85:
+                categorized_tiles[key] = 2
+            elif gray < 170:
+                categorized_tiles[key] = 1
             else:
-                category = 0
-            categorized_tiles[key] = category
+                categorized_tiles[key] = 0
+        else:
+            max_gray = max(tile_gray_averages.values())
+            if max_gray == 0:
+                max_gray = 1
+
+            range3 = max_gray / 3    # split thresholds into 3 parts
+
+            for key, gray in tile_gray_averages.items():
+                if gray <= range3:
+                    category = 2
+                elif gray <= 2 * range3:
+                    category = 1
+                else:
+                    category = 0
+                categorized_tiles[key] = category
         
         if arduino: 
             matrix = []
