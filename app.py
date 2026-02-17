@@ -7,7 +7,9 @@ import os
 import re
 import logging
 from werkzeug.utils import secure_filename
-
+import serial
+import time
+import json
 
 app = Flask(__name__)
 
@@ -15,11 +17,18 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+try: 
+    arduino = serial.Serial(port='COM4', baudrate=9600)
+    time.sleep(2)
+    logger.info("Connected to arduino")
+except Exception as e:
+    logger.error(f"Could not connect to ardionp: {e}")
+    arduino = None
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
-
-
 
 @app.route('/process_drawing', methods=['POST'])
 def process_drawing():
@@ -140,8 +149,20 @@ def process_drawing():
                 category = 1
             else:
                 category = 0
-
             categorized_tiles[key] = category
+        
+        if arduino: 
+            matrix = []
+            for row in range(rows): 
+                row_values = []
+                for col in range(cols):
+                    key = f"{row},{col}"
+                    row_values.append(categorized_tiles[key])
+                matrix.append(row_values)
+            
+            message = json.dumps(matrix)
+            arduino.write((message + "\n").encode())
+            logger.info("Sent matrix to arduino")
 
         logger.info(f"Successfully processed image {curr_image_num} with {len(tile_paths)} tiles")
 
