@@ -170,9 +170,16 @@ def process_drawing():
                     row_values.append(categorized_tiles[key])
                 matrix.append(row_values)
             
-            message = json.dumps(matrix)
+            flat_values = []
+
+            for row in range(rows):
+                for col in range(cols):
+                    key = f"{row},{col}"
+                    flat_values.append(str(categorized_tiles[key]))
+
+            message = ",".join(flat_values)
             arduino.write((message + "\n").encode())
-            logger.info("Sent matrix to arduino")
+            logger.info(f"Sent to Arduino: {message}")
 
         logger.info(f"Successfully processed image {curr_image_num} with {len(tile_paths)} tiles")
 
